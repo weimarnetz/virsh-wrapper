@@ -18,4 +18,6 @@ A wrapper to use libvirt-tools in a multi user environment
 * a cronjob runs every x minutes and loops users and directories
 * in case of errors a mail is sent to root and the user
 
-  
+##Ressources
+* virsh manpage: http://sancho.ccd.uniroma2.it/cgi-bin/man/man2html?virsh+1
+* libvirt docs: http://libvirt.org/deployment.html
