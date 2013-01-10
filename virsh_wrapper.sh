@@ -42,13 +42,16 @@ compose_virsh_cmd()				# $1=Entityname like domain name
 	local action="$2"
 	local user="$3"
 	local param="$4"
+	local homepath="$5"
 	local curdate
+	[ "$param" = "EMPTY" ] && param=""
 	case "$entity" in 
 		"dom-"*)
 			case "$action" in
 				"start"|"destroy"|"autostart")
 					curdate="$( timestamp )"
-					result="$( virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$HOMEPATH/log/$curdate-$user-$entity-$action.log )"
+					log "virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$homepath/log/$curdate-$user-$entity-$action.log "
+					echo "$( virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$homepath/log/$curdate-$user-$entity-$action.log )"
 					mv "$HOMEPATH/$entity/$action" "$HOMEPATH/history/$curdate-$entity-$action"
 				;;
 				*)
@@ -76,7 +79,7 @@ for USER in $GROUPMEMBERS; do {
 			mkdir -p "$HOMEPATH/history"
 		}
 		for ENTITY in $HOMEPATH/*; do {
-			SLASHCOUNT="$( grep -o '/' <<<$HOMEPATH| wc -l )"
+			SLASHCOUNT="$( grep -o '/' <<<$HOMEPATH | wc -l )"
 			[ "$( sanitize $ENTITY )" -ge 1 ] && {
 				log "'$ENTITY' is not a valid entity name"
 				mail "root $USER" "$ENTITY" "is not a valid entity name"
@@ -110,6 +113,7 @@ for USER in $GROUPMEMBERS; do {
 							mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
                         			        exit 1
 			                        }
+						[ -z $CONTENT ] && CONTENT="EMPTY"
 						VIRSH_CMD="$( compose_virsh_cmd $ENTITYNAME $FILE $USER $CONTENT $HOMEPATH )"
 					} done
 				;;
