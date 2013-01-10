@@ -7,4 +7,3 @@ TODO
 
 * implement some more virsh functions
 
-* write a cronjob
