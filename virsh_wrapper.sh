@@ -16,7 +16,7 @@ HOMEBASEDIR="/home"				#
 
 log()						# write log messages
 {
-	logger -s "$( date ): [$( pwd )]: $0: $1"
+	logger "$( date ): [$( pwd )]: $0: $1"
 }
 
 mail()
