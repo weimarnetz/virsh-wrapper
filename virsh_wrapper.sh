@@ -48,7 +48,7 @@ compose_virsh_cmd()				# $1=Entityname like domain name
 	case "$entity" in 
 		"dom-"*)
 			case "$action" in
-				"start"|"destroy"|"autostart")
+				"start"|"destroy"|"autostart"|"shutdown")
 					curdate="$( timestamp )"
 					log "virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$homepath/log/$curdate-$user-$entity-$action.log "
 					echo "$( virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$homepath/log/$curdate-$user-$entity-$action.log )"
