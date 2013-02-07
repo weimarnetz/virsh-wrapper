@@ -64,7 +64,11 @@ compose_virsh_cmd()				# $1=Entityname like domain name
 
 sanitize()					# discard filenames or param lists with suspicious characters
 {
-	echo 0 
+	if [[ "$1" =~ ^[-/_.:[:alnum:][:space:]]*$ ]]; then 
+		echo 0
+	else
+		echo 1
+	fi
 }
 
 GROUPMEMBERS="$( groupmembers )"
@@ -80,11 +84,11 @@ for USER in $GROUPMEMBERS; do {
 		}
 		for ENTITY in $HOMEPATH/*; do {
 			SLASHCOUNT="$( grep -o '/' <<<$HOMEPATH | wc -l )"
-			[ "$( sanitize $ENTITY )" -ge 1 ] && {
+			[ "$( sanitize "$ENTITY" )" -ge 1 ] && {
 				log "'$ENTITY' is not a valid entity name"
 				mail "root $USER" "$ENTITY" "is not a valid entity name"
 				curdate="$( date +%d_%h_%y_%H.%M )"
-				mv $ENTITY "$HOMEPATH/history/ERRORENTITY-$curdate"
+			#	mv $ENTITY "$HOMEPATH/history/ERRORENTITY-$curdate"
 				exit 1
 			}
 			ENTITYNAME="$( echo $ENTITY | cut -d '/' -f $( expr $SLASHCOUNT + 2) )"
@@ -106,15 +110,15 @@ for USER in $GROUPMEMBERS; do {
 							exit 1
 						}
 						CONTENT="$( cat $ENTITY/$FILE )"
-						[ "$( sanitize $CONTENT )" -ge 1 ] && {
+						[ "$( sanitize "$CONTENT" )" -ge 1 ] && {
 							log "not a valid virsh command line"
 			                                mail "root $USER" "CONTENT" "is not a valid virsh command line"
 							curdate="$( date +%d_%h_%y_%H.%M )"
 							mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
                         			        exit 1
 			                        }
-						[ -z $CONTENT ] && CONTENT="EMPTY"
-						VIRSH_CMD="$( compose_virsh_cmd $ENTITYNAME $FILE $USER $CONTENT $HOMEPATH )"
+						[ -z "$CONTENT" ] && CONTENT="EMPTY"
+						VIRSH_CMD="$( compose_virsh_cmd $ENTITYNAME $FILE $USER "$CONTENT" $HOMEPATH )"
 					} done
 				;;
 				"history"|"log")
