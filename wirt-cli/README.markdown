@@ -20,7 +20,7 @@ help:      create   - creates a machine
 help:      status   - status of a machine
 help:      start    - starts a machine
 help:      stop     - stop a machine (ACPI)
-help:      kill     - immediately a machine
+help:      kill     - immediately kill a machine
 help:    
 help:    Options:
 help:      --machine, --vm  name of a machine.  [string]
