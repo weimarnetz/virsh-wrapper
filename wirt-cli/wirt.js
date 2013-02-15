@@ -23,15 +23,20 @@ app.use(flatiron.plugins.cli, {
     '  status   - status of a machine',
     '  start    - starts a machine',
     '  stop     - stop a machine (ACPI)',
-    '  kill     - immediately a machine'
+    '  kill     - immediately kill a machine'
   ],
   argv: {
-      machine: {
-        alias: 'vm',
-        description: 'name of a machine.',
-        string: true,
-        default: app.config.get('machine')
-      }
+    'machine': {
+      alias: 'vm',
+      description: 'name of a machine.',
+      string: true,
+      default: app.config.get('machine')
+    },
+    'host': {
+      description: 'target host.',
+      string: true,
+      default: app.config.get('host')
+    }
     }
 });
 
