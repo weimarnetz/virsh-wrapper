@@ -63,6 +63,16 @@ Example user config:
 This would be useful if you just have 1 machine.  
 If you have more than 1 machine, you can still set the default and override it with a command line argument.
 
+### Manual Installation
+
+    cd ~ 
+    git clone git://github.com/weimarnetz/virsh-wrapper.git .wirt
+    cd .wirt/wirt-cli
+    git checkout -b wirt-cli origin/wirt-cli
+    npm install
+    echo '' >> ~/.bashrc
+    echo 'export alias wirt=~/.wirt/wirt-cli/wirt.js' >> ~/.bashrc
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
