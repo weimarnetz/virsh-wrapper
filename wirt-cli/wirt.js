@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// # BASE CONFIG
+
 var path     = require('path'),
     fs       = require('fs'),
     flatiron = require('flatiron'),
@@ -18,7 +20,8 @@ app.config.use('user', { type: 'file', file: path.join(__dirname, '.wirt.json') 
 // set the default values: name
 app.config.defaults({ 'name': "wirt" });
 
-// use cli {app}
+
+// use cli {app} from flatiron
 app.use(flatiron.plugins.cli, {
   dir: __dirname,
   usage: [
@@ -46,6 +49,9 @@ app.use(flatiron.plugins.cli, {
     }
 });
 
+
+// # BOOTSTRAP APP
+
 // init {app}
 app.init();
 
@@ -56,13 +62,11 @@ app.use(virsh, { "options": false } );
 // if we have no 'user' value, get the posix USER
 app.config.set('user', app.config.get('user') || app.config.get('USER'));
 
-// CONFIGURE COMMANDS
+// # CONFIGURE COMMANDS
 ['create','status','start','stop','kill'].forEach(function(c) {
   app.cmd(c, app.api[c]);
 });
 
 
-// START
-app.start();  
-
-// app.log.log('info', "var", {'foo': app.config.get('foo')});
+// # START
+app.start();
