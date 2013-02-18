@@ -8,8 +8,8 @@ var path     = require('path'),
     virsh    = require('./lib/virsh-client');
 
 // add config sources. 'env' and 'argv' are auto-loaded
-app.config.use('global', { type: 'file', file: './config/config.json' });
-app.config.use('user', { type: 'file', file: './config/user.json' });
+app.config.use('global', { type: 'file', file: path.join(__dirname, 'config', 'config.json') });
+app.config.use('user', { type: 'file', file: path.join(__dirname, 'config', 'user.json') });
 app.config.defaults({ 'name': "wirt" });
 
 // use cli {app}
