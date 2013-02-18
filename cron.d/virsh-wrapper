@@ -1,1 +1,0 @@
-*/2 * * * * wrapper test -x /usr/local/bin/virsh_wrapper.sh && sudo /usr/local/bin/virsh_wrapper.sh
