@@ -8,8 +8,14 @@ var path     = require('path'),
     virsh    = require('./lib/virsh-client');
 
 // add config sources. 'env' and 'argv' are auto-loaded
+
+// `/path/to/install/config/config.json`:
 app.config.use('global', { type: 'file', file: path.join(__dirname, 'config', 'config.json') });
-app.config.use('user', { type: 'file', file: path.join(__dirname, 'config', 'user.json') });
+
+// `~/.wirt.json`:
+app.config.use('user', { type: 'file', file: path.join(__dirname, '.wirt.json') });
+
+// set the default values: name
 app.config.defaults({ 'name': "wirt" });
 
 // use cli {app}
@@ -47,6 +53,8 @@ app.init();
 app.use(common, { "options": false } );
 app.use(virsh, { "options": false } );
 
+// if we have no 'user' value, get the posix USER
+app.config.set('user', app.config.get('user') || app.config.get('USER'));
 
 // CONFIGURE COMMANDS
 ['create','status','start','stop','kill'].forEach(function(c) {

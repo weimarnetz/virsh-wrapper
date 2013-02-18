@@ -47,7 +47,7 @@ info:    ok! machine=mybox, command=destroy
 All parameters can be set, in the following order:
 
 - the global config in `/install/path/config.json` (json file)
-- the user config in `~/.wirt` (json file)
+- the user config in `~/.wirt.json` (json file)
 - as an environment variable, ie. `$ export vm=mynode; wirt`
 - as a command line flag, ie. `$ wirt --vm mynode`
 
