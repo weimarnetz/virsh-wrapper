@@ -137,8 +137,11 @@ in this version `/logs` and `/info` are to be written by the host and read by us
 from an api perspective, the supported *services* are **resources**.
 for now, only virtual machines are supported.
 
-#### Machines
+### Implementation
 
-- name: `dom-` (new: `vm/`)
-- name: `dom-` (new: `vm/`)
-
+- user can use cli tool (`wirt-cli`)
+- this tool can also do admin function (when the user runningn it has the rights)
+- current: in the backend, a shell script reads and acts (via cron)
+- new: same, but more modular
+    - either `virsh-wrapper` stays monolithic and gets js helper scripts
+    - or the main script is js and the `virsh-wrapper` gets more split up in commands
