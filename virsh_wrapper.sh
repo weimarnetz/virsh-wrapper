@@ -35,25 +35,31 @@ groupmembers()					# returns a space separated list of users
 	echo "$members"
 }
 
-compose_virsh_cmd()				# $1=Entityname like domain name
-{						# $2=Action, the file name
-	local uri="-c qemu:///system"		# $3=user, the machine owner
-	local entity="$1"			# $4=command line, the content of the file
-	local action="$2"
-	local user="$3"
-	local param="$4"
+compose_virsh_cmd()
+{
+	local uri="-c qemu:///system"
+	local entity="$1"				# $1=Entityname like domain name
+	local action="$2"	 	 	 	# $2=Action, the file name
+	local user="$3"					# $3=user, the machine owner
+	local param="$4"				# $4=command line, the content of the file
 	local homepath="$5"
 	local curdate
 	[ "$param" = "EMPTY" ] && param=""
 	case "$entity" in 
 		"dom-"*)
 			case "$action" in
+				# USER COMMANDS
 				"start"|"destroy"|"autostart"|"shutdown")
 					curdate="$( timestamp )"
 					log "virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$homepath/log/$curdate-$user-$entity-$action.log "
 					echo "$( virsh  $uri $action --domain $user-$( echo $entity | cut -c '5-' ) $param &>$homepath/log/$curdate-$user-$entity-$action.log )"
 					mv "$HOMEPATH/$entity/$action" "$HOMEPATH/history/$curdate-$entity-$action"
 				;;
+				# OTHER COMMANDS
+				"status") # dump the info as xml
+					echo "$( virsh  $uri dumpxml --domain $user-$( echo $entity | cut -c '5-' ) > "$HOMEPATH/dom-$entity/status.xml )"
+				;;
+				# NO COMMAND FOUND
 				*)
 					log "Action $action is curently not supported."
 				;;
@@ -73,6 +79,7 @@ sanitize()					# discard filenames or param lists with suspicious characters
 
 GROUPMEMBERS="$( groupmembers )"
 
+# do it for every USER
 for USER in $GROUPMEMBERS; do {
 	HOMEPATH="$HOMEBASEDIR/$USER/virsh"
 	[ -e "$HOMEPATH" ] && {
@@ -82,8 +89,12 @@ for USER in $GROUPMEMBERS; do {
 		[ -e "$HOMEPATH/history" ] || {
 			mkdir -p "$HOMEPATH/history"
 		}
+		
+		# loop through all the folders in our path
 		for ENTITY in $HOMEPATH/*; do {
 			SLASHCOUNT="$( grep -o '/' <<<$HOMEPATH | wc -l )"
+			
+			# sanitze input against hack0rs -- abort if nasty string
 			[ "$( sanitize "$ENTITY" )" -ge 1 ] && {
 				log "'$ENTITY' is not a valid entity name"
 				mail "root $USER" "$ENTITY" "is not a valid entity name"
@@ -91,9 +102,19 @@ for USER in $GROUPMEMBERS; do {
 			#	mv $ENTITY "$HOMEPATH/history/ERRORENTITY-$curdate"
 				exit 1
 			}
+			
+			# construct $ENTITYNAME ???
 			ENTITYNAME="$( echo $ENTITY | cut -d '/' -f $( expr $SLASHCOUNT + 2) )"
+			
+			# check if we should do something with the folder
 			case "$ENTITYNAME" in
-				"dom-"*)
+				"dom-"*) 
+					# It is a vm folder!
+					
+					# first, let's dump the status of the vm
+					$( compose_virsh_cmd $ENTITYNAME "status" $USER "" $HOMEPATH )
+					
+					# loop through each `dom-*` folder, trying to parse files to commands
 					FILELIST="$( ls -rt $ENTITY | sed 's/  / /g' )"
 					for FILE in $FILELIST; do {
 						[ "$( sanitize $FILE )" -ge 1 ] && {
@@ -118,6 +139,8 @@ for USER in $GROUPMEMBERS; do {
                         			        exit 1
 			                        }
 						[ -z "$CONTENT" ] && CONTENT="EMPTY"
+						
+						# run the command parsed from user file
 						VIRSH_CMD="$( compose_virsh_cmd $ENTITYNAME $FILE $USER "$CONTENT" $HOMEPATH )"
 					} done
 				;;
