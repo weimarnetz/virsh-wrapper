@@ -40,20 +40,29 @@ exports.attach = function (options) {
     },
     
     'command': function (srv, cmd, callback) {
+      // 'service' is the resource, hard-coded to 'machine'/vm
       srv = srv || app.config.get('machine');
-      if (app.common.checkConf(['machine'])) {
-        app.log.info("writing command: " + cmd);
+      
+      // async check for needed config for this command
+      app.common.checkConf(['machine'], function(err) {
+        // if there was an error while checking
+        if (err) {
+          callback(err);
+        // if there was no error while checking
+        } else {
+          app.log.info("writing command: " + cmd);
         
-        // write command as file with same name to service folder
-        fs.writeFile(path.join(service.path(srv), cmd), "", function(err) {
-          if (err) {
-            callback(err);
-          } else {
-            app.log.info("ok!", { "machine": srv, "command": cmd} );
-            callback();
-          }
-        });
-      }
+          // write command as file with same name to service folder
+          fs.writeFile(path.join(service.path(srv), cmd), "", function(err) {
+            if (err) {
+              callback(err);
+            } else {
+              app.log.info("ok!", { "machine": srv, "command": cmd });
+              callback();
+            }
+          });
+        }
+      });
     },
     
     'path': function (srv) {
