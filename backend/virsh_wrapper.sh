@@ -57,7 +57,7 @@ compose_virsh_cmd()
 				;;
 				# OTHER COMMANDS
 				"status") # dump the info as xml
-					echo "$( virsh  $uri dumpxml --domain $user-$( echo $entity | cut -c '5-' ) > "$HOMEPATH/dom-$entity/status.xml )"
+					echo "$( virsh  $uri dumpxml --domain $user-$( echo $entity | cut -c '5-' ) > $HOMEPATH/$entity/status.xml )"
 				;;
 				# NO COMMAND FOUND
 				*)
