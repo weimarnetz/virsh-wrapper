@@ -81,17 +81,17 @@ GROUPMEMBERS="$( groupmembers )"
 
 # do it for every USER
 for USER in $GROUPMEMBERS; do {
-	HOMEPATH="$HOMEBASEDIR/$USER/virsh"
+	HOMEPATH="$HOMEBASEDIR/$USER/wirt"
 	[ -e "$HOMEPATH" ] && {
-		[ -e "$HOMEPATH/log" ] || {
-			mkdir -p "$HOMEPATH/log"
+		[ -e "$HOMEPATH/logs" ] || {
+			mkdir -p "$HOMEPATH/logs"
 		}
-		[ -e "$HOMEPATH/history" ] || {
-			mkdir -p "$HOMEPATH/history"
+		[ -e "$HOMEPATH/info" ] || {
+			mkdir -p "$HOMEPATH/info"
 		}
 		
-		# loop through all the folders in our path
-		for ENTITY in $HOMEPATH/*; do {
+		# loop through all the folders in the service/vm
+		for ENTITY in $HOMEPATH/service/vm/*; do {
 			SLASHCOUNT="$( grep -o '/' <<<$HOMEPATH | wc -l )"
 			
 			# sanitze input against hack0rs -- abort if nasty string
@@ -105,55 +105,41 @@ for USER in $GROUPMEMBERS; do {
 			
 			# construct $ENTITYNAME ???
 			ENTITYNAME="$( echo $ENTITY | cut -d '/' -f $( expr $SLASHCOUNT + 2) )"
-			
-			# check if we should do something with the folder
-			case "$ENTITYNAME" in
-				"dom-"*) 
-					# It is a vm folder!
-					
-					# first, let's dump the status of the vm
-					$( compose_virsh_cmd $ENTITYNAME "status" $USER "" $HOMEPATH )
-					
-					# loop through each `dom-*` folder, trying to parse files to commands
-					FILELIST="$( ls -rt $ENTITY | sed 's/  / /g' )"
-					for FILE in $FILELIST; do {
-						[ "$( sanitize $FILE )" -ge 1 ] && {
-			                                log "'$FILE' is not a valid file name"
-                        			        mail "root $USER" "$FILE" "is not a valid file name"
-							curdate="$( date +%d_%h_%y_%H.%M )"
-							mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
-			                                exit 1
-                       				}
-						[ "$( wc -l < $ENTITY/$FILE )" -gt 1 ] && {
-							log "not a valid virsh command line, too many lines"
-							curdate="$( date +%d_%h_%y_%H.%M )"
-							mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
-							exit 1
-						}
-						CONTENT="$( cat $ENTITY/$FILE )"
-						[ "$( sanitize "$CONTENT" )" -ge 1 ] && {
-							log "not a valid virsh command line"
-			                                mail "root $USER" "CONTENT" "is not a valid virsh command line"
-							curdate="$( date +%d_%h_%y_%H.%M )"
-							mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
-                        			        exit 1
-			                        }
-						[ -z "$CONTENT" ] && CONTENT="EMPTY"
 						
-						# run the command parsed from user file
-						VIRSH_CMD="$( compose_virsh_cmd $ENTITYNAME $FILE $USER "$CONTENT" $HOMEPATH )"
-					} done
-				;;
-				"history"|"log")
-					# do nothing, this directory contains a history and logs of commands
-				;;
-				*)
-					echo "Entity $ENTITY not yet supported"
+			# Do the actual commands
+					
+			# first, let's dump the status of the vm
+			$( compose_virsh_cmd $ENTITYNAME "status" $USER "" $HOMEPATH )
+					
+			# loop through each `dom-*` folder, trying to parse files to commands
+			FILELIST="$( ls -rt $ENTITY | sed 's/  / /g' )"
+			for FILE in $FILELIST; do {
+				[ "$( sanitize $FILE )" -ge 1 ] && {
+																	log "'$FILE' is not a valid file name"
+																	mail "root $USER" "$FILE" "is not a valid file name"
 					curdate="$( date +%d_%h_%y_%H.%M )"
-					mv $ENTITY "$HOMEPATH/history/ERRORENTITY-$curdate"
-				;;
-			esac
+					mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
+																	exit 1
+																}
+				[ "$( wc -l < $ENTITY/$FILE )" -gt 1 ] && {
+					log "not a valid virsh command line, too many lines"
+					curdate="$( date +%d_%h_%y_%H.%M )"
+					mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
+					exit 1
+				}
+				CONTENT="$( cat $ENTITY/$FILE )"
+				[ "$( sanitize "$CONTENT" )" -ge 1 ] && {
+					log "not a valid virsh command line"
+	                                mail "root $USER" "CONTENT" "is not a valid virsh command line"
+					curdate="$( date +%d_%h_%y_%H.%M )"
+					mv "$ENTITY/$FILE" "$HOMEPATH/history/ERRORFILE-$curdate"
+                    			        exit 1
+	                        }
+				[ -z "$CONTENT" ] && CONTENT="EMPTY"
+						
+				# run the command parsed from user file
+				VIRSH_CMD="$( compose_virsh_cmd $ENTITYNAME $FILE $USER "$CONTENT" $HOMEPATH )"
+			} done
 		} done
-	
 	}
 } done

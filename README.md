@@ -93,12 +93,7 @@ i.e. `logs` is read-only (since the host writes there).
 
     ~/wirt
     │
-    ├── command                 # COMMANDS (user can "send")
-    │   ├── domain              # domain resources
-    │   │   └── mykiste         # example: mykiste
-    │   │       ├── config      # settings.json to change
-    │   │       ├── start       # empty
-    │   │       └── stop        # empty
+    ├── service                 # SERVICES (user can "send" commands to)
     │   │ 
     │   └── vm                  # vm resources
     │       └── mymachine       # example: mymachine
