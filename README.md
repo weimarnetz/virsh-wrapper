@@ -1,4 +1,4 @@
-# wirt -- **w**eimarnetz v**ir**tualization **t**ool
+# wirt -- weimarnetz virtualization tool
 
 > Be bright and jovial among your guests to-night.  
 > *William Shakespeare, "Macbeth"*
