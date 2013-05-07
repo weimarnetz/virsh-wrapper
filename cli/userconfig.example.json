@@ -1,0 +1,6 @@
+{
+  "_???": "Save this file to ~/.wirt.json",
+  "user": "myname",
+  "_machine?": "Settings it here makes it your user's default",
+  "machine": "mymachine"
+}
