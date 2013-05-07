@@ -1,6 +1,6 @@
 {
   "name": "wirt",
   "host": "192.168.3.106",
-  "dir": "virsh",
-  "prefix": "dom-"
+  "dir": "wirt",
+  "prefix": "vm-"
 }

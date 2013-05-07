@@ -2,13 +2,13 @@
 
 # Usage:
 # Users need to be in $VMGROUP
-# User needs a directory 'virsh' in $HOME
-# for every managed domain an own subdirectory is needed, prefix is 'dom-', the machine name is appended
+# User needs a directory 'wirt' in $HOME
+# for every managed machine an own subdirectory is needed, prefix is 'vm-', the machine name is appended
 # the system name for the machine is $username-$machinename
-# to start a vm: touch /home/$USER/virsh/dom-$VM/start
-# to stop a vm: touch /home/$USER/virsh/dom-$VM/destroy 
-# to enable autostart on host boot for a vm: touch /home/$USER/virsh/dom-$VM/autostart
-# to disable autostart on host boot: echo "--disable" > /home/$USER/virsh/dom-$VM/autostart
+# to start a vm: touch /home/$USER/wirt/vm-$VM/start
+# to stop a vm: touch /home/$USER/wirt/vm-$VM/destroy 
+# to enable autostart on host boot for a vm: touch /home/$USER/wirt/vm-$VM/autostart
+# to disable autostart on host boot: echo "--disable" > /home/$USER/wirt/vm-$VM/autostart
 
 
 VMGROUP="vmguests"				# specifies the group of users that is allowed to control machines
@@ -38,7 +38,7 @@ groupmembers()					# returns a space separated list of users
 compose_virsh_cmd()
 {
 	local uri="-c qemu:///system"
-	local entity="$1"				# $1=Entityname like domain name
+	local entity="$1"				# $1=Entityname like machine name
 	local action="$2"	 	 	 	# $2=Action, the file name
 	local user="$3"					# $3=user, the machine owner
 	local param="$4"				# $4=command line, the content of the file
@@ -46,7 +46,7 @@ compose_virsh_cmd()
 	local curdate
 	[ "$param" = "EMPTY" ] && param=""
 	case "$entity" in 
-		"dom-"*)
+		"vm-"*)
 			case "$action" in
 				# USER COMMANDS
 				"start"|"destroy"|"autostart"|"shutdown")
@@ -111,7 +111,7 @@ for USER in $GROUPMEMBERS; do {
 			# first, let's dump the status of the vm
 			$( compose_virsh_cmd $ENTITYNAME "status" $USER "" $HOMEPATH )
 					
-			# loop through each `dom-*` folder, trying to parse files to commands
+			# loop through each `vm-*` folder, trying to parse files to commands
 			FILELIST="$( ls -rt $ENTITY | sed 's/  / /g' )"
 			for FILE in $FILELIST; do {
 				[ "$( sanitize $FILE )" -ge 1 ] && {
